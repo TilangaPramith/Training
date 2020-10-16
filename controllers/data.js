@@ -24,9 +24,9 @@ const viewData = async (req, res) => {
     
         console.log(this.name, " ", this.age, " ", this.address, " ", this.mobile);
         console.log(ip);
-    
-        const data = ip;
-        res.json({data, agent});
+
+        const arr = [{ip},{agent}];
+        res.json(arr);
     } catch(err){
         console.warn(`Generic: ${err}`);
         res.status(500).send();
