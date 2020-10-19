@@ -10,6 +10,8 @@ const url = require('url');
 const app = express();
 const port = process.env.PORT || 3000;
 
+require('./config/database');
+
 const dataRouter = require('./routes/data');
 
 app.use(logger('dev'));
