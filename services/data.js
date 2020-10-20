@@ -7,4 +7,6 @@ const registrationUser = (user) => {
 
 const selectUserByEmail = (email_address1) => User.findOne({ email_address: email_address1 });
 
-module.exports = { registrationUser, selectUserByEmail };
+const selectUserById = (user_id) => User.findOne({ id: user_id });
+
+module.exports = { registrationUser, selectUserByEmail, selectUserById };

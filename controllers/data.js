@@ -1,5 +1,8 @@
 const UserAgent = require('user-agents');
 const compareVersions = require('compare-versions');
+const jwt = require('jsonwebtoken');
+const { jwtSecret } = require('../config/jwt');
+
 // const bcrypt = require('bcrypt');
 // await bcrypt.hash(req.body.password, await bcrypt.genSalt(10));
 
@@ -42,6 +45,7 @@ const registerUser = async (req, res) => {
           mobile: this.mobile,
           company: this.company,
           password: this.password,
+          address: this.address,
         };
         // eslint-disable-next-line no-console
         console.log(this.first_name, ' ', this.last_name, ' ', this.address, ' ', this.mobile);
@@ -74,16 +78,34 @@ const authenticateUser = async (req, res) => {
   try {
     console.log(password);
     const users = await selectUserByEmail(email_address);
-    console.log(users.password);
+    console.log(users.id);
     if (!users) return res.status(404).send('E-mail address is not registered!');
     const match = compareVersions.compare(password, users.password, '=');
     if (!match) return res.status(401).send('Incorrect password!');
 
-    res.status(201).send('Logging successfully');
+    const token = jwt.sign({ user_id: users.id }, jwtSecret, { expiresIn: 259200 });
+
+    res.json({
+      token,
+      user: {
+        user_id: users.id,
+        first_name: users.first_name,
+        last_name: users.last_name,
+        mobile: users.mobile,
+        company: users.company,
+        address: users.address,
+        email_address: users.email_address,
+      },
+    });
   } catch (err) {
     console.warn(`Generic: ${err}`);
     res.status(500).send();
   }
 };
 
-module.exports = { registerUser, authenticateUser };
+const getUser = async (req, res) => {
+  console.log(req.user);
+  res.json(req.user);
+};
+
+module.exports = { registerUser, authenticateUser, getUser };
