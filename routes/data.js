@@ -12,5 +12,6 @@ router.get('/registerUser', ipMiddleware, registerUser);
 router.post('/authenticationUser', authenticateUser);
 
 router.get('/getUser', isValidToken, getUser);
+// isValidToken
 
 module.exports = router;

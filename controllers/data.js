@@ -9,10 +9,12 @@ const { jwtSecret } = require('../config/jwt');
 const { registrationUser, selectUserByEmail } = require('../services/data');
 
 const registerUser = async (req, res) => {
+  console.log(req.body.first_name);
   try {
     if (JSON.parse(JSON.stringify(req.query)) || JSON.parse(JSON.stringify(req.body))) {
       if (req.body) {
-        console.log(req.body.first_name);
+        console.log('opoopo');
+        console.log(req.body);
         this.first_name = req.body.first_name;
         this.last_name = req.body.last_name;
         this.address = req.body.address;
@@ -20,7 +22,8 @@ const registerUser = async (req, res) => {
         this.email_address = req.body.email_address;
         this.company = req.body.company;
         this.password = req.body.password;
-      } else if (req.query) {
+      } else if (req.query.email_address) {
+        console.log(';;;;;');
         this.first_name = req.query.first_name;
         this.last_name = req.query.last_name;
         this.address = req.query.address;
@@ -52,9 +55,17 @@ const registerUser = async (req, res) => {
         // eslint-disable-next-line no-console
         console.log(ip, agent);
 
-        await registrationUser(user);
+        const users = await registrationUser(user);
+        const data = users.ops;
+        // eslint-disable-next-line no-underscore-dangle
+        console.log(data[0]._id);
 
-        res.status(201).send('Success Registration');
+        res.status(201).send({
+          email: data[0].email_address,
+          message: 'email of user that just signed up',
+          // eslint-disable-next-line no-underscore-dangle
+          id: data[0]._id,
+        });
       } catch (err) {
         // eslint-disable-next-line no-console
         console.warn(`Generic: ${err}`);
@@ -76,16 +87,19 @@ const authenticateUser = async (req, res) => {
   const { password, email_address } = req.body;
 
   try {
-    console.log(password);
+    console.log(password, email_address);
     const users = await selectUserByEmail(email_address);
-    console.log(users.id);
+    // eslint-disable-next-line no-underscore-dangle
+    console.log(users);
     if (!users) return res.status(404).send('E-mail address is not registered!');
+    console.log('mai');
     const match = compareVersions.compare(password, users.password, '=');
+    console.log('mai22');
     if (!match) return res.status(401).send('Incorrect password!');
 
     const token = jwt.sign({ user_id: users.id }, jwtSecret, { expiresIn: 259200 });
 
-    res.json({
+    res.status(201).json({
       token,
       user: {
         user_id: users.id,
@@ -105,7 +119,9 @@ const authenticateUser = async (req, res) => {
 
 const getUser = async (req, res) => {
   console.log(req.user);
-  res.json(req.user);
+  const users = [];
+  users.push(req.user);
+  res.json(users);
 };
 
 module.exports = { registerUser, authenticateUser, getUser };
